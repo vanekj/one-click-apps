@@ -1,0 +1,124 @@
+{
+    "captainVersion": "1",
+    "documentation": "Taken from https://hub.docker.com/r/roundcube/roundcubemail",
+    "dockerCompose": {
+        "version": "3",
+        "services": {
+            "$$cap_appname-db": {
+                "image": "mysql:$$cap_mysql_version",
+                "restart": "always",
+                "notExposeAsWebApp": "true",
+                "volumes": [
+                    "$$cap_appname-db-data:/var/lib/mysql"
+                ],
+                "environment": {
+                    "MYSQL_ROOT_PASSWORD": "$$cap_db_pass",
+                    "MYSQL_DATABASE": "$$cap_db_name",
+                    "MYSQL_USER": "$$cap_db_user",
+                    "MYSQL_PASSWORD": "$$cap_db_pass"
+                }
+            },
+            "$$cap_appname": {
+                "image": "roundcube/roundcubemail:$$cap_roundcube_version",
+                "restart": "always",
+                "depends_on": [
+                    "$$cap_appname-db"
+                ],
+                "volumes": [
+                    "$$cap_appname-data:/rainloop/data"
+                ],
+                "environment": {
+                    "ROUNDCUBEMAIL_DB_TYPE": "mysql",
+                    "ROUNDCUBEMAIL_DB_HOST": "srv-captain--$$cap_appname-db:3306",
+                    "ROUNDCUBEMAIL_DB_USER": "$$cap_db_user",
+                    "ROUNDCUBEMAIL_DB_PASSWORD": "$$cap_db_pass",
+                    "ROUNDCUBEMAIL_DB_NAME": "$$cap_db_name",
+                    "ROUNDCUBEMAIL_DEFAULT_HOST": "$$cap_roundcube_default_host",
+                    "ROUNDCUBEMAIL_DEFAULT_PORT": "$$cap_roundcube_default_port",
+                    "ROUNDCUBEMAIL_SMTP_SERVER": "$$cap_roundcube_smtp_server",
+                    "ROUNDCUBEMAIL_SMTP_PORT": "$$cap_roundcube_smtp_port",
+                    "ROUNDCUBEMAIL_PLUGINS": "$$cap_roundcube_plugins",
+                    "ROUNDCUBEMAIL_UPLOAD_MAX_FILESIZE": "$$cap_roundcube_upload_max_filesize"
+                }
+            }
+        },
+        "volumes": {
+            "$$cap_appname-db-data": {},
+            "$$cap_appname-data": {}
+        }
+    },
+    "instructions": {
+        "start": "Roundcube webmail is a browser-based multilingual IMAP client with an application-like user interface. It provides full functionality you expect from an email client, including MIME support, address book, folder manipulation, message searching and spell checking. See the link for more information https://roundcube.net/about/",
+        "end": "Roundcube webmail is deployed and available as $$cap_appname. \n\n It will take about a minute for Roundcube to be ready. Before that, you might see 502 error page."
+    },
+    "variables": [
+        {
+            "id": "$$cap_mysql_version",
+            "label": "MySQL version",
+            "defaultValue": "5.7",
+            "description": "Checkout their docker page for the valid tags https://hub.docker.com/r/library/mysql/tags/",
+            "validRegex": "/^([^\\s^\\/])+$/"
+        },
+        {
+            "id": "$$cap_db_name",
+            "label": "MySQL database name",
+            "defaultValue": "roundcubemail",
+            "validRegex": "/.{1,}/"
+        },
+        {
+            "id": "$$cap_db_user",
+            "label": "MySQL database user",
+            "defaultValue": "root",
+            "validRegex": "/.{1,}/"
+        },
+        {
+            "id": "$$cap_db_pass",
+            "label": "MySQL database password",
+            "defaultValue": "root",
+            "validRegex": "/.{1,}/"
+        },
+        {
+            "id": "$$cap_roundcube_version",
+            "label": "Roundcube version",
+            "defaultValue": "1.3.8-apache",
+            "description": "Checkout their docker page for the valid tags https://hub.docker.com/r/roundcube/roundcubemail/tags/",
+            "validRegex": "/^([^\\s^\\/])+$/"
+        },
+        {
+            "id": "$$cap_roundcube_default_host",
+            "label": "Hostname of the IMAP server to connect to",
+            "defaultValue": "mail.domain.ltd",
+            "validRegex": "/.{1,}/"
+        },
+        {
+            "id": "$$cap_roundcube_default_port",
+            "label": "IMAP port number",
+            "defaultValue": "143",
+            "validRegex": "/[0-9]{1,}/"
+        },
+        {
+            "id": "$$cap_roundcube_smtp_server",
+            "label": "Hostname of the SMTP server to send mails",
+            "defaultValue": "mail.domain.ltd",
+            "validRegex": "/.{1,}/"
+        },
+        {
+            "id": "$$cap_roundcube_smtp_port",
+            "label": "SMTP port number",
+            "defaultValue": "587",
+            "validRegex": "/[0-9]{1,}/"
+        },
+        {
+            "id": "$$cap_roundcube_plugins",
+            "label": "List of built-in plugins to activate",
+            "defaultValue": "archive,zipdownload",
+            "validRegex": "/.{1,}/"
+        },
+        {
+            "id": "$$cap_roundcube_upload_max_filesize",
+            "label": "File upload size limit",
+            "defaultValue": "5M",
+            "validRegex": "/.{1,}/"
+        }
+    ]
+}
